@@ -12,8 +12,16 @@ public class Partition<T> {
 
     private final List<T> origin;
 
-    public Partition(List<T> origin) {
+    private Partition(List<T> origin) {
         this.origin = origin;
+    }
+
+    public static <T> Partition<T> of(List<T> origin) {
+        if (origin == null) {
+            throw new IllegalArgumentException("Original list cannot be null");
+        }
+
+        return new Partition<T>(origin);
     }
 
     List<List<T>> partitions(int size) {
@@ -25,11 +33,9 @@ public class Partition<T> {
             throw new IllegalArgumentException("Size should not surpass the list's size!");
         }
 
-        return Streams.zip(IntStream.range(0, origin.size()).boxed(),
-                origin.stream(), Pair::new)
+        return Streams.zip(IntStream.range(0, origin.size()).boxed(), origin.stream(), Pair::new)
                 .collect(groupingBy(pair -> pair._1 / size))
-                .values()
-                .stream()
+                .values().stream()
                 .map(list -> list.stream().map(pair -> pair._2).collect(toList()))
                 .collect(toList());
     }
